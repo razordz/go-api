@@ -1,0 +1,67 @@
+definitions:
+  models.User:
+    properties:
+      created_at:
+        example: "2025-04-23T12:00:00Z"
+        type: string
+      email:
+        example: josuel@example.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: Josuel
+        type: string
+      updated_at:
+        example: "2025-04-23T12:00:00Z"
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /users:
+    get:
+      description: Retorna todos os usuários cadastrados
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "500":
+          description: Erro interno
+          schema:
+            type: string
+      summary: Lista usuários
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Cria um novo usuário com nome e e-mail
+      parameters:
+      - description: Usuário a ser criado
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Erro ao criar usuário
+          schema:
+            type: string
+      summary: Cria usuário
+      tags:
+      - users
+swagger: "2.0"
