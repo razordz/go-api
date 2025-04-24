@@ -1,7 +1,4 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
-name: Go
+name: Go CI
 
 on:
   push:
@@ -10,19 +7,32 @@ on:
     branches: [ "main" ]
 
 jobs:
-
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
 
-    - name: Set up Go
+    steps:
+    - name: Checkout o código
+      uses: actions/checkout@v4
+
+    - name: Set up Go 1.23
       uses: actions/setup-go@v4
       with:
-        go-version: '1.20'
+        go-version: '1.23'
 
-    - name: Build
+    - name: Instalar dependências
+      run: go mod tidy
+
+    - name: Instalar swaggo/swag
+      run: go install github.com/swaggo/swag/cmd/swag@latest
+
+    - name: Gerar documentação Swagger
+      run: swag init
+
+    - name: Build do projeto
       run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./...
+    - name: Rodar testes
+      run: go test -v ./tests
+
+    - name: Verificar se documentação foi gerada
+      run: test -f ./docs/docs.go
