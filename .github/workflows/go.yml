@@ -23,4 +23,4 @@ jobs:
 
     steps:
     - name: Checkout o código
-      uses: actions/checkout@v
+      uses: actions/checkout@v4
