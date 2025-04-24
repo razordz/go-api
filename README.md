@@ -1,18 +1,20 @@
+# 🚀 Go API com Swagger - Projeto Base (MongoDB)
 
-# 📦 Go API com Swagger - Projeto Base
+Este é um projeto base de uma API RESTful desenvolvida em **Go (Golang)**, com arquitetura em camadas (`controller`, `service`, `repository`) e documentação automática com **Swagger** utilizando o `swaggo`.
 
-Este projeto é uma API RESTful simples desenvolvida em **Go (Golang)**, utilizando o padrão de camadas (`controller`, `service`, `repository`) e documentada com **Swagger** via `swaggo`.
+Banco de dados utilizado: **MongoDB** (com persistência via Docker).
 
 ---
 
-## 🚀 Funcionalidades
+## ✨ Funcionalidades
 
-- ✅ Cadastro de usuários
-- ✅ Listagem de usuários
-- ✅ Validação de campos
-- ✅ Integração com banco PostgreSQL via GORM
-- ✅ Documentação automática com Swagger (`/doc/api`)
-- ✅ Arquitetura escalável com camadas organizadas
+- ✅ Cadastro e listagem de usuários
+- ✅ Validação de campos obrigatórios
+- ✅ Verificação de e-mail duplicado (índice único no Mongo)
+- ✅ Documentação Swagger (`/doc/api`)
+- ✅ Testes automatizados com `net/http/httptest`
+- ✅ Arquitetura escalável com separação de responsabilidades
+- ✅ Pronto para rodar com Docker
 
 ---
 
@@ -20,25 +22,31 @@ Este projeto é uma API RESTful simples desenvolvida em **Go (Golang)**, utiliza
 
 ```
 go-api/
-├── config/         # Carrega variáveis de ambiente (.env)
-├── controllers/    # Controladores HTTP
-├── database/       # Inicialização e conexão com o banco
-├── models/         # Estrutura dos dados (User)
-├── repositories/   # Acesso ao banco
-├── routes/         # Rotas e endpoints
-├── services/       # Regras de negócio
-├── .env            # Configurações sensíveis
-├── main.go         # Ponto de entrada
-└── README.md       # Este arquivo
+├── config/         # Carregamento de variáveis de ambiente
+├── controllers/    # Lida com requisições HTTP
+├── database/       # Conexão com MongoDB e criação de índices
+├── docs/           # Arquivos gerados pelo swag
+├── models/         # Estruturas dos dados (User)
+├── repositories/   # Interação com o banco de dados
+├── routes/         # Definição de rotas
+├── services/       # Regras de negócio (validações, etc)
+├── tests/          # Testes automatizados
+├── main.go         # Ponto de entrada da aplicação
+├── .env            # Variáveis de ambiente
+└── docker-compose.yml
 ```
 
 ---
 
 ## 📚 Documentação Swagger
 
-Após rodar a aplicação, acesse:
+Geração automática com `swaggo/swag`.
 
-👉 [`http://localhost:8080/doc/api`](http://localhost:8080/doc/api)
+> Acesse após subir a aplicação:
+
+```
+http://localhost:8080/doc/api
+```
 
 ---
 
@@ -51,41 +59,33 @@ git clone https://github.com/seu-usuario/go-api.git
 cd go-api
 ```
 
-### 2. Instale as dependências
-
-```bash
-go mod tidy
-```
-
-### 3. Configure o `.env`
-
-Crie um arquivo `.env` com base no modelo:
+### 2. Crie o arquivo `.env`
 
 ```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASS=123456
-DB_NAME=goapidb
+MONGO_URI=mongodb://mongo:27017
+MONGO_DB=goapidb
 PORT=8080
 ```
 
-### 4. Gere a documentação Swagger
+> Se estiver rodando local sem Docker, use:
+> `MONGO_URI=mongodb://localhost:27017`
+
+### 3. Gere a documentação Swagger
 
 ```bash
 go install github.com/swaggo/swag/cmd/swag@latest
 swag init
 ```
 
-### 5. Rode a aplicação
+### 4. Suba os containers (MongoDB + API)
 
 ```bash
-go run main.go
+docker-compose up --build
 ```
 
 ---
 
-## ✅ Exemplos de endpoints
+## ✅ Exemplos de Endpoints
 
 ### `GET /users`
 
@@ -104,21 +104,30 @@ Cria um novo usuário:
 
 ---
 
-## 🧪 Testes
-
-Execute os testes com:
+## 🧪 Rodando os Testes
 
 ```bash
 go test ./tests -v
 ```
 
+> Os testes verificam:
+> - Criação com sucesso
+> - Erro ao criar com e-mail duplicado
+> - Erro ao criar com campos vazios
+
 ---
 
-## 📦 Tecnologias utilizadas
+## 📦 Tecnologias Utilizadas
 
-- Go 1.22+
-- GORM
-- Gorilla Mux
-- swaggo/swag
-- PostgreSQL
-- Docker (opcional)
+- **Go 1.22+**
+- **MongoDB** (com driver oficial)
+- **Gorilla Mux**
+- **swaggo/swag** (documentação)
+- **Docker** + **Docker Compose**
+- **httptest** (testes de integração)
+
+---
+
+## 🧠 Créditos
+
+Desenvolvido por [@razordz](https://github.com/razordz) com 💻 e ☕.

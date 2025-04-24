@@ -1,20 +1,14 @@
 definitions:
   models.User:
     properties:
-      created_at:
-        example: "2025-04-23T12:00:00Z"
-        type: string
       email:
         example: josuel@example.com
         type: string
       id:
-        example: 1
-        type: integer
+        example: 507f1f77bcf86cd799439011
+        type: string
       name:
         example: Josuel
-        type: string
-      updated_at:
-        example: "2025-04-23T12:00:00Z"
         type: string
     type: object
 info:

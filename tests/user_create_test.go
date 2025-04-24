@@ -2,6 +2,7 @@ package tests
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,6 +12,9 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"go-api/controllers"
 	"go-api/database"
@@ -25,11 +29,37 @@ func init() {
 	database.Init()
 }
 
+// Helper para limpar a coleção antes de cada teste
+func clearUsersCollection(t *testing.T) {
+	ctx := context.TODO()
+
+	// Dropa a coleção (isso apaga os índices também)
+	err := database.MongoDB.Collection("users").Drop(ctx)
+	if err != nil {
+		t.Fatalf("Erro ao limpar a collection: %v", err)
+	}
+
+	// Recria o índice único no campo email
+	indexModel := mongo.IndexModel{
+		Keys:    bson.M{"email": 1},
+		Options: options.Index().SetUnique(true),
+	}
+	_, err = database.MongoDB.Collection("users").Indexes().CreateOne(ctx, indexModel)
+	if err != nil {
+		t.Fatalf("Erro ao recriar índice de email: %v", err)
+	}
+}
+
 func TestCreateUserSuccess(t *testing.T) {
-	payload := models.User{Name: "Usuário Teste POST", Email: fmt.Sprintf("post_test_%d@example.com", time.Now().UnixNano())}
+	clearUsersCollection(t)
+
+	payload := models.User{
+		Name:  "Usuário Teste POST",
+		Email: fmt.Sprintf("post_test_%d@example.com", time.Now().UnixNano()),
+	}
 	body, _ := json.Marshal(payload)
 
-	req, _ := http.NewRequest("POST", "/users", bytes.NewBuffer(body))
+	req := httptest.NewRequest("POST", "/users", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
@@ -48,13 +78,19 @@ func TestCreateUserSuccess(t *testing.T) {
 }
 
 func TestCreateUserDuplicateEmail(t *testing.T) {
+	clearUsersCollection(t)
+
 	email := "duplicado@example.com"
-	database.DB.Create(&models.User{Name: "Usuário", Email: email})
+	ctx := context.TODO()
+	_, err := database.MongoDB.Collection("users").InsertOne(ctx, models.User{Name: "Usuário", Email: email})
+	if err != nil {
+		t.Fatalf("Erro ao inserir user duplicado: %v", err)
+	}
 
 	payload := models.User{Name: "Novo Usuário", Email: email}
 	body, _ := json.Marshal(payload)
 
-	req, _ := http.NewRequest("POST", "/users", bytes.NewBuffer(body))
+	req := httptest.NewRequest("POST", "/users", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
@@ -67,10 +103,12 @@ func TestCreateUserDuplicateEmail(t *testing.T) {
 }
 
 func TestCreateUserMissingFields(t *testing.T) {
+	clearUsersCollection(t)
+
 	payload := models.User{Name: "", Email: ""}
 	body, _ := json.Marshal(payload)
 
-	req, _ := http.NewRequest("POST", "/users", bytes.NewBuffer(body))
+	req := httptest.NewRequest("POST", "/users", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()

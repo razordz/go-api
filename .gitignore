@@ -1,6 +1,9 @@
-.env
-docs/
+.git
 *.swp
 *.log
-*.db
+docs/
+README.md
+node_modules/
+tmp/
 vendor/
+.env

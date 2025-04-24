@@ -42,8 +42,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := services.RegisterUser(&user); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err := services.RegisterUser(&user)
+	if err != nil {
+		// ✨ Adiciona verificação de erro por texto (poderia ser custom error type no futuro)
+		if err.Error() == "Nome e email são obrigatórios" || err.Error() == "E-mail já cadastrado" {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		// 🚨 Erro inesperado
+		http.Error(w, "Erro interno do servidor", http.StatusInternalServerError)
 		return
 	}
 

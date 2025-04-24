@@ -87,25 +87,17 @@ const docTemplate = `{
         "models.User": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "type": "string",
-                    "example": "2025-04-23T12:00:00Z"
-                },
                 "email": {
                     "type": "string",
                     "example": "josuel@example.com"
                 },
                 "id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "507f1f77bcf86cd799439011"
                 },
                 "name": {
                     "type": "string",
                     "example": "Josuel"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2025-04-23T12:00:00Z"
                 }
             }
         }
