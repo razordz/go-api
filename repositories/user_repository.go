@@ -12,7 +12,9 @@ import (
 	"go-api/models"
 )
 
-func FindAllUsers() ([]models.User, error) {
+var FindAllUsers = findAllUsers
+
+func findAllUsers() ([]models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -34,7 +36,9 @@ func FindAllUsers() ([]models.User, error) {
 	return users, nil
 }
 
-func CreateUser(user *models.User) error {
+var CreateUser = createUser
+
+func createUser(user *models.User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -50,7 +54,9 @@ func CreateUser(user *models.User) error {
 	return nil
 }
 
-func FindUserByEmail(email string) (*models.User, error) {
+var FindUserByEmail = findUserByEmail
+
+func findUserByEmail(email string) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -62,7 +68,9 @@ func FindUserByEmail(email string) (*models.User, error) {
 	return &user, nil
 }
 
-func UpdateUser(id primitive.ObjectID, data bson.M) error {
+var UpdateUser = updateUser
+
+func updateUser(id primitive.ObjectID, data bson.M) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
