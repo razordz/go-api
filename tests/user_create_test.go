@@ -15,6 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"golang.org/x/crypto/bcrypt"
 
 	"go-api/controllers"
 	"go-api/database"
@@ -54,8 +55,9 @@ func TestCreateUserSuccess(t *testing.T) {
 	clearUsersCollection(t)
 
 	payload := models.User{
-		Name:  "Usuário Teste POST",
-		Email: fmt.Sprintf("post_test_%d@example.com", time.Now().UnixNano()),
+		Name:     "Usuário Teste POST",
+		Email:    fmt.Sprintf("post_test_%d@example.com", time.Now().UnixNano()),
+		Password: "123",
 	}
 	body, _ := json.Marshal(payload)
 
@@ -82,12 +84,13 @@ func TestCreateUserDuplicateEmail(t *testing.T) {
 
 	email := "duplicado@example.com"
 	ctx := context.TODO()
-	_, err := database.MongoDB.Collection("users").InsertOne(ctx, models.User{Name: "Usuário", Email: email})
+	hash, _ := bcrypt.GenerateFromPassword([]byte("abc"), bcrypt.DefaultCost)
+	_, err := database.MongoDB.Collection("users").InsertOne(ctx, models.User{Name: "Usuário", Email: email, Password: string(hash)})
 	if err != nil {
 		t.Fatalf("Erro ao inserir user duplicado: %v", err)
 	}
 
-	payload := models.User{Name: "Novo Usuário", Email: email}
+	payload := models.User{Name: "Novo Usuário", Email: email, Password: "abc"}
 	body, _ := json.Marshal(payload)
 
 	req := httptest.NewRequest("POST", "/users", bytes.NewBuffer(body))
@@ -105,7 +108,7 @@ func TestCreateUserDuplicateEmail(t *testing.T) {
 func TestCreateUserMissingFields(t *testing.T) {
 	clearUsersCollection(t)
 
-	payload := models.User{Name: "", Email: ""}
+	payload := models.User{Name: "", Email: "", Password: ""}
 	body, _ := json.Marshal(payload)
 
 	req := httptest.NewRequest("POST", "/users", bytes.NewBuffer(body))
