@@ -66,7 +66,10 @@ cd go-api
 MONGO_URI=mongodb://mongo:27017
 MONGO_DB=goapidb
 PORT=8080
+JWT_SECRET=minhaChaveSecreta
 ```
+
+> Use uma chave forte em `JWT_SECRET` para garantir a segurança dos tokens.
 
 > Se estiver rodando local sem Docker, use:
 > `MONGO_URI=mongodb://localhost:27017`
@@ -110,7 +113,11 @@ O parâmetro `-admin` é opcional e cria um usuário administrador.
 
 ---
 
+
 ## ✅ Exemplos de Endpoints
+### `GET /`
+
+Mensagem simples para verificar se a API está no ar.
 
 ### `GET /users`
 
@@ -136,6 +143,22 @@ Retorna um token JWT:
 {
   "email": "josuel@example.com",
   "password": "suaSenha"
+}
+```
+
+### `PUT /users/{id}`
+
+Atualiza dados de um usuário. Envie o token no cabeçalho `Authorization`:
+
+```
+Authorization: Bearer <token>
+```
+
+Corpo com campos a alterar:
+
+```json
+{
+  "name": "Novo Nome"
 }
 ```
 
