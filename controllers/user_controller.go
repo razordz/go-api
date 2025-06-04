@@ -2,8 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 
+	"go-api/middlewares"
 	"go-api/models"
 	"go-api/services"
 )
@@ -44,16 +47,63 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err := services.RegisterUser(&user)
 	if err != nil {
-		// ✨ Adiciona verificação de erro por texto (poderia ser custom error type no futuro)
-		if err.Error() == "Nome e email são obrigatórios" || err.Error() == "E-mail já cadastrado" {
+		if err.Error() == "Nome, email e senha são obrigatórios" || err.Error() == "E-mail já cadastrado" {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		// 🚨 Erro inesperado
 		http.Error(w, "Erro interno do servidor", http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	user.Password = ""
 	json.NewEncoder(w).Encode(user)
+}
+
+func Login(w http.ResponseWriter, r *http.Request) {
+	var creds struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
+		http.Error(w, "Dados inválidos", http.StatusBadRequest)
+		return
+	}
+	user, err := services.Authenticate(creds.Email, creds.Password)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	token, err := services.GenerateToken(user)
+	if err != nil {
+		http.Error(w, "Erro ao gerar token", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]string{"token": token})
+}
+
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idParam := vars["id"]
+	objID, err := primitive.ObjectIDFromHex(idParam)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	role := r.Context().Value(middlewares.ContextRole).(string)
+	userID := r.Context().Value(middlewares.ContextUserID).(string)
+	if role != "admin" && userID != idParam {
+		http.Error(w, "Proibido", http.StatusForbidden)
+		return
+	}
+	var payload map[string]string
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "Dados inválidos", http.StatusBadRequest)
+		return
+	}
+	if err := services.UpdateUser(objID, payload); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }

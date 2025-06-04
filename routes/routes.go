@@ -7,6 +7,7 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	"go-api/controllers"
+	"go-api/middlewares"
 
 	_ "go-api/docs"
 )
@@ -14,8 +15,11 @@ import (
 func Setup() *mux.Router {
 	router := mux.NewRouter()
 
+	router.HandleFunc("/login", controllers.Login).Methods("POST")
+
 	router.HandleFunc("/users", controllers.CreateUser).Methods("POST")
-	router.HandleFunc("/users", controllers.GetUsers).Methods("GET")
+	router.Handle("/users", middlewares.JWT(http.HandlerFunc(controllers.GetUsers))).Methods("GET")
+	router.Handle("/users/{id}", middlewares.JWT(http.HandlerFunc(controllers.UpdateUser))).Methods("PUT")
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("API em Go está no ar!"))
