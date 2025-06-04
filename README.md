@@ -9,6 +9,7 @@ Banco de dados utilizado: **MongoDB** (com persistência via Docker).
 ## ✨ Funcionalidades
 
 - ✅ Cadastro e listagem de usuários
+- ✅ Autenticação JWT com login
 - ✅ Validação de campos obrigatórios
 - ✅ Verificação de e-mail duplicado (índice único no Mongo)
 - ✅ Documentação Swagger (`/doc/api`)
@@ -83,6 +84,7 @@ swag init
 docker-compose up --build
 ```
 
+
 ### 5. Rodando sem Docker (opcional)
 
 Caso prefira executar a API diretamente com o Go instalado na sua máquina,
@@ -93,6 +95,18 @@ arquivo `.env` possui a variável `MONGO_URI` apontando para essa instância.
 go mod download
 go run main.go
 ```
+
+
+### 6. Cadastro rápido via CLI
+
+É possível criar usuários diretamente pelo terminal para facilitar o desenvolvimento:
+
+```bash
+go run ./cmd/createuser -name "Admin" -email admin@example.com -password 123456 -admin
+```
+
+O parâmetro `-admin` é opcional e cria um usuário administrador.
+
 
 ---
 
@@ -109,7 +123,19 @@ Cria um novo usuário:
 ```json
 {
   "name": "Josuel",
-  "email": "josuel@example.com"
+  "email": "josuel@example.com",
+  "password": "suaSenha"
+}
+```
+
+### `POST /login`
+
+Retorna um token JWT:
+
+```json
+{
+  "email": "josuel@example.com",
+  "password": "suaSenha"
 }
 ```
 

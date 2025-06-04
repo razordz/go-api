@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"golang.org/x/crypto/bcrypt"
 
 	"go-api/controllers"
 	"go-api/database"
@@ -47,7 +48,8 @@ func prepareTestUser(t *testing.T) {
 	}
 
 	// ✅ Insere usuário de teste
-	user := models.User{Name: "Josuel Test", Email: "teste@exemplo.com"}
+	hash, _ := bcrypt.GenerateFromPassword([]byte("123"), bcrypt.DefaultCost)
+	user := models.User{Name: "Josuel Test", Email: "teste@exemplo.com", Password: string(hash), Role: "user"}
 	_, err = database.MongoDB.Collection("users").InsertOne(ctx, user)
 	if err != nil {
 		t.Fatalf("Erro ao inserir user: %v", err)
