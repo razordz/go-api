@@ -16,7 +16,9 @@ import (
 	"go-api/repositories"
 )
 
-func RegisterUser(user *models.User) error {
+var RegisterUser = registerUser
+
+func registerUser(user *models.User) error {
 	if strings.TrimSpace(user.Name) == "" || strings.TrimSpace(user.Email) == "" || strings.TrimSpace(user.Password) == "" {
 		return errors.New("Nome, email e senha são obrigatórios")
 	}
@@ -41,11 +43,15 @@ func RegisterUser(user *models.User) error {
 	return nil
 }
 
-func GetUsers() ([]models.User, error) {
+var GetUsers = getUsers
+
+func getUsers() ([]models.User, error) {
 	return repositories.FindAllUsers()
 }
 
-func Authenticate(email, password string) (*models.User, error) {
+var Authenticate = authenticate
+
+func authenticate(email, password string) (*models.User, error) {
 	user, err := repositories.FindUserByEmail(email)
 	if err != nil {
 		return nil, errors.New("Credenciais inválidas")
@@ -57,7 +63,9 @@ func Authenticate(email, password string) (*models.User, error) {
 	return user, nil
 }
 
-func GenerateToken(user *models.User) (string, error) {
+var GenerateToken = generateToken
+
+func generateToken(user *models.User) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": user.ID.Hex(),
 		"role":    user.Role,
@@ -67,7 +75,9 @@ func GenerateToken(user *models.User) (string, error) {
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }
 
-func UpdateUser(id primitive.ObjectID, data map[string]string) error {
+var UpdateUser = updateUser
+
+func updateUser(id primitive.ObjectID, data map[string]string) error {
 	update := make(map[string]interface{})
 	if name, ok := data["name"]; ok {
 		update["name"] = name
