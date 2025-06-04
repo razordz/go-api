@@ -84,7 +84,20 @@ swag init
 docker-compose up --build
 ```
 
-### 5. Cadastro rápido via CLI
+
+### 5. Rodando sem Docker (opcional)
+
+Caso prefira executar a API diretamente com o Go instalado na sua máquina,
+certifique-se de que um servidor MongoDB está ativo em `localhost:27017` e que o
+arquivo `.env` possui a variável `MONGO_URI` apontando para essa instância.
+
+```bash
+go mod download
+go run main.go
+```
+
+
+### 6. Cadastro rápido via CLI
 
 É possível criar usuários diretamente pelo terminal para facilitar o desenvolvimento:
 
@@ -93,6 +106,7 @@ go run ./cmd/createuser -name "Admin" -email admin@example.com -password 123456 
 ```
 
 O parâmetro `-admin` é opcional e cria um usuário administrador.
+
 
 ---
 
