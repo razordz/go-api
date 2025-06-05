@@ -94,7 +94,7 @@ func TestUpdateUserNoData(t *testing.T) {
 	}
 }
 
-func TestUpdateUserSuccess(t *testing.T) {
+func TestUpdateUserServiceSuccess(t *testing.T) {
 	original := repositories.UpdateUser
 	defer func() { repositories.UpdateUser = original }()
 

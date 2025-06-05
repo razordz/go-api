@@ -62,7 +62,7 @@ func TestLoginInvalid(t *testing.T) {
 	}
 }
 
-func TestUpdateUserSuccess(t *testing.T) {
+func TestUpdateUserControllerSuccess(t *testing.T) {
 	upOrig := services.UpdateUser
 	defer func() { services.UpdateUser = upOrig }()
 
